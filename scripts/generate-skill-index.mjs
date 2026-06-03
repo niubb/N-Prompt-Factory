@@ -1,4 +1,14 @@
-<!DOCTYPE html>
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const rootDir = path.resolve(__dirname, '..');
+const skillsDir = path.join(rootDir, '.trae', 'skills');
+const outputFile = path.join(skillsDir, 'index.html');
+
+const HTML_TEMPLATE = `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -148,51 +158,112 @@
     </header>
 
     <div class="skills-grid">
-      <a href="add-prompt/SKILL.md" class="skill-card">
-        <div class="skill-name">add-prompt</div>
-        <div class="skill-description">在 prompts 文件夹中添加新的提示词。支持分类管理，基于模板自动创建 .header.md 元数据文件，并更新索引文件。</div>
-        <div class="skill-link">View Skill</div>
-      </a>
-      <a href="jargon-swap/SKILL.md" class="skill-card">
-        <div class="skill-name">jargon-swap</div>
-        <div class="skill-description">用生活化词汇替换专业术语。当用户说'术语替换'、'换成人话'、'用生活中的词解释'、'简单替代一下'、或问'XX是什么意思但不用太复杂'时触发。不适用于需要深入讲解某个概念本身的场景——那是费曼讲解的工作，这里只做轻量替换。</div>
-        <div class="skill-link">View Skill</div>
-      </a>
-      <a href="openspec-apply-change/SKILL.md" class="skill-card">
-        <div class="skill-name">openspec-apply-change</div>
-        <div class="skill-description">Implement tasks from an OpenSpec change. Use when the user wants to start implementing, continue implementation, or work through tasks.</div>
-        <div class="skill-link">View Skill</div>
-      </a>
-      <a href="openspec-archive-change/SKILL.md" class="skill-card">
-        <div class="skill-name">openspec-archive-change</div>
-        <div class="skill-description">Archive a completed change in the experimental workflow. Use when the user wants to finalize and archive a change after implementation is complete.</div>
-        <div class="skill-link">View Skill</div>
-      </a>
-      <a href="openspec-explore/SKILL.md" class="skill-card">
-        <div class="skill-name">openspec-explore</div>
-        <div class="skill-description">Enter explore mode - a thinking partner for exploring ideas, investigating problems, and clarifying requirements. Use when the user wants to think through something before or during a change.</div>
-        <div class="skill-link">View Skill</div>
-      </a>
-      <a href="openspec-propose/SKILL.md" class="skill-card">
-        <div class="skill-name">openspec-propose</div>
-        <div class="skill-description">Propose a new change with all artifacts generated in one step. Use when the user wants to quickly describe what they want to build and get a complete proposal with design, specs, and tasks ready for implementation.</div>
-        <div class="skill-link">View Skill</div>
-      </a>
-      <a href="openspec-sync-specs/SKILL.md" class="skill-card">
-        <div class="skill-name">openspec-sync-specs</div>
-        <div class="skill-description">Sync delta specs from a change to main specs. Use when the user wants to update main specs with changes from a delta spec, without archiving the change.</div>
-        <div class="skill-link">View Skill</div>
-      </a>
-      <a href="regenerate-skill-index/SKILL.md" class="skill-card">
-        <div class="skill-name">regenerate-skill-index</div>
-        <div class="skill-description">重新生成 skills 索引页面。当 skills 目录中的内容发生变化后，用于更新 .trae/skills/index.html。</div>
-        <div class="skill-link">View Skill</div>
-      </a>
+{{SKILLS_CARDS}}
     </div>
 
     <footer>
-      <p>Total: 8 skills</p>
+      <p>Total: {{TOTAL}} skills</p>
     </footer>
   </div>
 </body>
 </html>
+`;
+
+function parseFrontmatter(content) {
+    const match = content.match(/^---\n([\s\S]*?)\n---/);
+    if (!match) {
+        return null;
+    }
+
+    const frontmatter = match[1];
+    const nameMatch = frontmatter.match(/name:\s*["']?([^"'\n]+)["']?/);
+    const descMatch = frontmatter.match(/description:\s*(?:"([^"]+)"|'([^']+)'|([^"\n][^\n]*))/);
+
+    if (!nameMatch) {
+        return null;
+    }
+
+    const description = descMatch ? (descMatch[1] || descMatch[2] || descMatch[3] || '').trim() : '';
+
+    if (!description) {
+        return null;
+    }
+
+    return {
+        name: nameMatch[1].trim(),
+        description
+    };
+}
+
+function discoverSkills() {
+    const skills = [];
+
+    if (!fs.existsSync(skillsDir)) {
+        console.warn(`Skills directory not found: ${skillsDir}`);
+        return skills;
+    }
+
+    const entries = fs.readdirSync(skillsDir, { withFileTypes: true });
+
+    for (const entry of entries) {
+        if (!entry.isDirectory()) {
+            continue;
+        }
+
+        const skillPath = path.join(skillsDir, entry.name, 'SKILL.md');
+
+        if (!fs.existsSync(skillPath)) {
+            console.warn(`SKILL.md not found in ${entry.name}, skipping.`);
+            continue;
+        }
+
+        try {
+            const content = fs.readFileSync(skillPath, 'utf-8');
+            const metadata = parseFrontmatter(content);
+
+            if (!metadata) {
+                console.warn(`Failed to parse frontmatter in ${entry.name}/SKILL.md, skipping.`);
+                continue;
+            }
+
+            skills.push({
+                name: metadata.name,
+                description: metadata.description,
+                href: `${entry.name}/SKILL.md`
+            });
+        } catch (err) {
+            console.warn(`Error reading ${entry.name}/SKILL.md: ${err.message}`);
+        }
+    }
+
+    return skills;
+}
+
+function generateSkillCard(skill) {
+    return `      <a href="${skill.href}" class="skill-card">
+        <div class="skill-name">${skill.name}</div>
+        <div class="skill-description">${skill.description}</div>
+        <div class="skill-link">View Skill</div>
+      </a>`;
+}
+
+function generateHTML(skills) {
+    const cards = skills.map(generateSkillCard).join('\n');
+    return HTML_TEMPLATE
+        .replace('{{SKILLS_CARDS}}', cards)
+        .replace('{{TOTAL}}', skills.length.toString());
+}
+
+function main() {
+    console.log('Discovering skills...');
+    const skills = discoverSkills();
+    console.log(`Found ${skills.length} skills.`);
+
+    console.log('Generating HTML...');
+    const html = generateHTML(skills);
+
+    fs.writeFileSync(outputFile, html, 'utf-8');
+    console.log(`Written to ${outputFile}`);
+}
+
+main();

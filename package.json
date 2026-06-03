@@ -1,0 +1,8 @@
+{
+  "name": "n-prompt-factory",
+  "version": "1.0.0",
+  "description": "Prompt management project",
+  "scripts": {
+    "generate:skill-index": "node scripts/generate-skill-index.mjs"
+  }
+}
