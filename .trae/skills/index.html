@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skills Index</title>
+  <style>
+    :root {
+      --bg-primary: #1a1a2e;
+      --bg-secondary: #16213e;
+      --bg-card: #0f3460;
+      --text-primary: #eaeaea;
+      --text-secondary: #a0a0a0;
+      --accent: #e94560;
+      --accent-hover: #ff6b6b;
+      --border-radius: 12px;
+      --spacing: 20px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: var(--spacing);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      padding: 40px 0;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+    }
+
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: var(--spacing);
+      padding: var(--spacing) 0;
+    }
+
+    .skill-card {
+      background: var(--bg-card);
+      border-radius: var(--border-radius);
+      padding: var(--spacing);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid transparent;
+    }
+
+    .skill-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(233, 69, 96, 0.2);
+      border-color: var(--accent);
+    }
+
+    .skill-name {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 10px;
+      font-family: 'Consolas', 'Monaco', monospace;
+    }
+
+    .skill-description {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      flex-grow: 1;
+    }
+
+    .skill-link {
+      margin-top: 15px;
+      color: var(--accent);
+      font-size: 0.9rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .skill-card:hover .skill-link {
+      color: var(--accent-hover);
+    }
+
+    .skill-link::after {
+      content: '→';
+      transition: transform 0.2s ease;
+    }
+
+    .skill-card:hover .skill-link::after {
+      transform: translateX(4px);
+    }
+
+    footer {
+      text-align: center;
+      padding: 40px 0;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 1.8rem;
+      }
+
+      .skills-grid {
+        grid-template-columns: 1fr;
+      }
+
+      body {
+        padding: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Skills Index</h1>
+      <p class="subtitle">Available AI Skills for Trae IDE</p>
+    </header>
+
+    <div class="skills-grid">
+      <a href="add-prompt/SKILL.md" class="skill-card">
+        <div class="skill-name">add-prompt</div>
+        <div class="skill-description">在 prompts 文件夹中添加新的提示词。支持分类管理，基于模板自动创建 .header.md 元数据文件，并更新索引文件。</div>
+        <div class="skill-link">View Skill</div>
+      </a>
+
+      <a href="jargon-swap/SKILL.md" class="skill-card">
+        <div class="skill-name">jargon-swap</div>
+        <div class="skill-description">用生活化词汇替换专业术语。当用户说'术语替换'、'换成人话'、'用生活中的词解释'、'简单替代一下'、或问'XX是什么意思但不用太复杂'时触发。</div>
+        <div class="skill-link">View Skill</div>
+      </a>
+
+      <a href="openspec-apply-change/SKILL.md" class="skill-card">
+        <div class="skill-name">openspec-apply-change</div>
+        <div class="skill-description">Implement tasks from an OpenSpec change. Use when the user wants to start implementing, continue implementation, or work through tasks.</div>
+        <div class="skill-link">View Skill</div>
+      </a>
+
+      <a href="openspec-archive-change/SKILL.md" class="skill-card">
+        <div class="skill-name">openspec-archive-change</div>
+        <div class="skill-description">Archive a completed change in the experimental workflow. Use when the user wants to finalize and archive a change after implementation is complete.</div>
+        <div class="skill-link">View Skill</div>
+      </a>
+
+      <a href="openspec-explore/SKILL.md" class="skill-card">
+        <div class="skill-name">openspec-explore</div>
+        <div class="skill-description">Enter explore mode - a thinking partner for exploring ideas, investigating problems, and clarifying requirements.</div>
+        <div class="skill-link">View Skill</div>
+      </a>
+
+      <a href="openspec-propose/SKILL.md" class="skill-card">
+        <div class="skill-name">openspec-propose</div>
+        <div class="skill-description">Propose a new change with all artifacts generated in one step. Use when the user wants to quickly describe what they want to build.</div>
+        <div class="skill-link">View Skill</div>
+      </a>
+
+      <a href="openspec-sync-specs/SKILL.md" class="skill-card">
+        <div class="skill-name">openspec-sync-specs</div>
+        <div class="skill-description">Sync delta specs from a change to main specs. Use when the user wants to update main specs with changes from a delta spec.</div>
+        <div class="skill-link">View Skill</div>
+      </a>
+    </div>
+
+    <footer>
+      <p>Total: 7 skills</p>
+    </footer>
+  </div>
+</body>
+</html>
